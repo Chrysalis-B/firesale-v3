@@ -1,4 +1,5 @@
-import { app, BrowserWindow } from 'electron';
+import { app, BrowserWindow, dialog, ipcMain } from 'electron';
+import { readFile } from 'fs/promises';
 import { join } from 'path';
 
 const createWindow = () => {
@@ -42,3 +43,38 @@ app.on('activate', () => {
     createWindow();
   }
 });
+
+ipcMain.on('show-open-dialog', (event) => {
+  const browserWindow = BrowserWindow.fromWebContents(event.sender);
+
+  if (!browserWindow) return;
+
+  showOpenDialog(browserWindow);
+});
+
+const showOpenDialog = async (browserWindow: BrowserWindow) => {
+  try {
+    const result = await dialog.showOpenDialog(browserWindow, {
+      properties: ['openFile'],
+      filters: [{ name: 'Markdown File', extensions: ['md'] }],
+    });
+
+    if (result.canceled) return;
+
+    const [filePath] = result.filePaths;
+
+    openFile(browserWindow, filePath);
+  } catch (err) {
+    console.error('Falied to open dialog', err);
+  }
+};
+
+const openFile = async (browserWindow: BrowserWindow, filePath: string) => {
+  try {
+    const content = await readFile(filePath, { encoding: 'utf-8' });
+
+    browserWindow.webContents.send('file-opened', content);
+  } catch (err) {
+    console.error('Falied to open file', err);
+  }
+};
