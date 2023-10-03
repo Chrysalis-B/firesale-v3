@@ -11,4 +11,7 @@ contextBridge.exposeInMainWorld('api', {
   showOpenDialog: () => {
     ipcRenderer.send('show-open-dialog');
   },
+  showSaveDialog: (content: string) => {
+    ipcRenderer.send('show-save-dialog', content);
+  },
 });
