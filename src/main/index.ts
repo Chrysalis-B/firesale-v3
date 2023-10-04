@@ -3,13 +3,7 @@ import { createWindow } from './mainWindow';
 import { showOpenDialog, showSaveDialog } from './dialogHandler';
 import { saveFile, openFile } from './fileUtils';
 import { sendFileOpened, sendFileSaved } from './windowEmitter';
-
-interface File {
-  path?: string;
-  content?: string;
-}
-
-const currentFile = {} as File;
+import { getCurrentFile, setCurrentFile } from './currentFile';
 
 app.on('ready', createWindow);
 
@@ -30,18 +24,14 @@ ipcMain.on('show-open-dialog', event => {
 
   if (!browserWindow) return;
 
-  showOpenDialog(browserWindow)
-    .then(filePath => {
-      if (filePath) {
-        currentFile.path = filePath;
-        return openFile(filePath);
-      }
-      return '';
-    })
-    .then(content => {
-      currentFile.content = content;
-      sendFileOpened(browserWindow, content);
-    });
+  showOpenDialog(browserWindow).then(filePath => {
+    if (filePath) {
+      openFile(filePath).then(content => {
+        setCurrentFile(browserWindow, filePath, content);
+        sendFileOpened(browserWindow, content);
+      });
+    }
+  });
 });
 
 ipcMain.on('save-file', (event, content: string) => {
@@ -49,19 +39,20 @@ ipcMain.on('save-file', (event, content: string) => {
 
   if (!browserWindow) return;
 
-  if (currentFile.path) {
-    saveFile(currentFile.path, content);
-    currentFile.content = content;
+  const { path } = getCurrentFile();
+
+  if (path) {
+    saveFile(path, content);
+    setCurrentFile(browserWindow, path, content);
     sendFileSaved(browserWindow);
     return;
   }
 
-  showSaveDialog(browserWindow, currentFile.path, 'markDown')
+  showSaveDialog(browserWindow, 'markDown')
     .then(filePath => {
       if (filePath) {
         saveFile(filePath, content);
-        currentFile.path = filePath;
-        currentFile.content = content;
+        setCurrentFile(browserWindow, filePath, content);
       }
     })
     .then(() => sendFileSaved(browserWindow));
@@ -72,7 +63,7 @@ ipcMain.on('export-html', (event, html: string) => {
 
   if (!browserWindow) return;
 
-  showSaveDialog(browserWindow, currentFile.path, 'html')
+  showSaveDialog(browserWindow, 'html')
     .then(filePath => (filePath ? saveFile(filePath, html) : undefined))
     .then(() => sendFileSaved(browserWindow));
 });

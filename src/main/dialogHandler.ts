@@ -15,7 +15,6 @@ export const showOpenDialog = async (browserWindow: BrowserWindow) => {
 
 export const showSaveDialog = async (
   browserWindow: BrowserWindow,
-  path?: string,
   type: 'html' | 'markDown' = 'markDown'
 ) => {
   const result = await dialog.showSaveDialog(browserWindow, {
@@ -26,7 +25,6 @@ export const showSaveDialog = async (
         extensions: [type === 'html' ? 'html' : 'md'],
       },
     ],
-    defaultPath: path,
   });
 
   const { canceled, filePath } = result;
