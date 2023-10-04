@@ -3,7 +3,7 @@ import { createWindow } from './mainWindow';
 import { showOpenDialog, showSaveDialog } from './dialogHandler';
 import { saveFile, openFile } from './fileUtils';
 import { sendFileOpened, sendFileSaved } from './windowEmitter';
-import { getCurrentFile, setCurrentFile } from './currentFile';
+import { getCurrentFile, hasChanged, setCurrentFile } from './currentFile';
 
 app.on('ready', createWindow);
 
@@ -66,4 +66,8 @@ ipcMain.on('export-html', (event, html: string) => {
   showSaveDialog(browserWindow, 'html')
     .then(filePath => (filePath ? saveFile(filePath, html) : undefined))
     .then(() => sendFileSaved(browserWindow));
+});
+
+ipcMain.handle('has-changed', (_, content: string) => {
+  return hasChanged(content);
 });

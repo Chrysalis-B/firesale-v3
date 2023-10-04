@@ -6,13 +6,9 @@ contextBridge.exposeInMainWorld('api', {
       callback(content);
     });
   },
-  showOpenDialog: () => {
-    ipcRenderer.send('show-open-dialog');
-  },
-  saveFile: (content: string) => {
-    ipcRenderer.send('save-file', content);
-  },
-  exportHtml: (html: string) => {
-    ipcRenderer.send('export-html', html);
-  },
+  showOpenDialog: () => ipcRenderer.send('show-open-dialog'),
+  saveFile: (content: string) => ipcRenderer.send('save-file', content),
+  exportHtml: (html: string) => ipcRenderer.send('export-html', html),
+  checkForUnSavedChanges: (content: string) =>
+    ipcRenderer.invoke('has-changed', content),
 });

@@ -1,4 +1,5 @@
 import { BrowserWindow, app } from 'electron';
+import { basename } from 'path';
 
 const currentFile = {
   path: '',
@@ -12,10 +13,16 @@ export const setCurrentFile = (
 ) => {
   currentFile.path = path;
   currentFile.content = content;
-  browserWindow.setTitle(`${path} -  ${app.name}`);
+
+  app.addRecentDocument(path);
+  browserWindow.setTitle(`${basename(path)} -  ${app.name}`);
   browserWindow.setRepresentedFilename(path);
 };
 
 export const getCurrentFile = () => {
   return currentFile;
+};
+
+export const hasChanged = (content: string) => {
+  return currentFile.content !== content;
 };
