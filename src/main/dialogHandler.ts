@@ -13,10 +13,20 @@ export const showOpenDialog = async (browserWindow: BrowserWindow) => {
   return filePath;
 };
 
-export const showSaveDialog = async (browserWindow: BrowserWindow) => {
+export const showSaveDialog = async (
+  browserWindow: BrowserWindow,
+  path?: string,
+  type: 'html' | 'markDown' = 'markDown'
+) => {
   const result = await dialog.showSaveDialog(browserWindow, {
     properties: ['createDirectory'],
-    filters: [{ name: 'HTML File', extensions: ['html'] }],
+    filters: [
+      {
+        name: type === 'html' ? 'HTML File' : 'Markdown File',
+        extensions: [type === 'html' ? 'html' : 'md'],
+      },
+    ],
+    defaultPath: path,
   });
 
   const { canceled, filePath } = result;

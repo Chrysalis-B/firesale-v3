@@ -8,6 +8,7 @@ declare interface Window {
   api: {
     onFileOpen: (callback: (content: string) => void) => void;
     showOpenDialog: () => void;
-    showSaveDialog: (content: string) => void;
+    saveFile: (content: string) => void;
+    exportHtml: (html: string) => void;
   };
 }

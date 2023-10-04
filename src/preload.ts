@@ -9,7 +9,10 @@ contextBridge.exposeInMainWorld('api', {
   showOpenDialog: () => {
     ipcRenderer.send('show-open-dialog');
   },
-  showSaveDialog: (content: string) => {
-    ipcRenderer.send('show-save-dialog', content);
+  saveFile: (content: string) => {
+    ipcRenderer.send('save-file', content);
+  },
+  exportHtml: (html: string) => {
+    ipcRenderer.send('export-html', html);
   },
 });

@@ -17,5 +17,10 @@ Elements.OpenFileButton.addEventListener('click', () => {
 
 Elements.ExportHtmlButton.addEventListener('click', () => {
   const html = Elements.RenderedView.innerHTML;
-  window.api.showSaveDialog(html);
+  window.api.exportHtml(html);
+});
+
+Elements.SaveMarkdownButton.addEventListener('click', () => {
+  const markdown = Elements.MarkdownView.value;
+  window.api.saveFile(markdown);
 });
