@@ -1,4 +1,11 @@
-import { app, BrowserWindow, ipcMain } from 'electron';
+import {
+  app,
+  BrowserWindow,
+  ipcMain,
+  shell,
+  MenuItemConstructorOptions,
+  Menu,
+} from 'electron';
 import { createWindow } from './mainWindow';
 import { showOpenDialog, showSaveDialog } from './dialogHandler';
 import { saveFile, openFile } from './fileUtils';
@@ -24,14 +31,7 @@ ipcMain.on('show-open-dialog', event => {
 
   if (!browserWindow) return;
 
-  showOpenDialog(browserWindow).then(filePath => {
-    if (filePath) {
-      openFile(filePath).then(content => {
-        setCurrentFile(browserWindow, filePath, content);
-        sendFileOpened(browserWindow, content);
-      });
-    }
-  });
+  handleShowOpenDialog(browserWindow);
 });
 
 ipcMain.on('save-file', (event, content: string) => {
@@ -76,3 +76,60 @@ ipcMain.handle('has-changed', (event, content: string) => {
 
   return changed;
 });
+
+ipcMain.on('show-in-folder', () => {
+  const { path } = getCurrentFile();
+
+  if (!path) return;
+
+  shell.showItemInFolder(path);
+});
+
+ipcMain.on('open-in-default-application', () => {
+  const { path } = getCurrentFile();
+
+  if (!path) return;
+
+  shell.openPath(path);
+});
+
+const template: MenuItemConstructorOptions[] = [
+  {
+    label: 'File',
+    submenu: [
+      {
+        label: 'Open',
+        click: () =>
+          handleShowOpenDialog(
+            BrowserWindow.getFocusedWindow() ?? createWindow()
+          ),
+        accelerator: 'CmdOrCtrl+O',
+      },
+    ],
+  },
+  {
+    label: 'Edit',
+    role: 'editMenu',
+  },
+];
+
+if (process.platform === 'darwin') {
+  template.unshift({
+    label: app.name,
+    role: 'appMenu',
+  });
+}
+
+const menu = Menu.buildFromTemplate(template);
+Menu.setApplicationMenu(menu);
+
+const handleShowOpenDialog = (browserWindow: BrowserWindow) => {
+  showOpenDialog(browserWindow).then(filePath => {
+    if (filePath) {
+      openFile(filePath).then(content => {
+        setCurrentFile(browserWindow, filePath, content);
+        sendFileOpened(browserWindow, content);
+      });
+    }
+  });
+};

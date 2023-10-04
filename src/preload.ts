@@ -11,4 +11,7 @@ contextBridge.exposeInMainWorld('api', {
   exportHtml: (html: string) => ipcRenderer.send('export-html', html),
   checkForUnSavedChanges: (content: string) =>
     ipcRenderer.invoke('has-changed', content),
+  showInFolder: () => ipcRenderer.send('show-in-folder'),
+  openInDefaultApplication: () =>
+    ipcRenderer.send('open-in-default-application'),
 });

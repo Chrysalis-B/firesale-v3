@@ -27,4 +27,6 @@ export const createWindow = () => {
   mainWindow.webContents.openDevTools({
     mode: 'detach',
   });
+
+  return mainWindow;
 };
