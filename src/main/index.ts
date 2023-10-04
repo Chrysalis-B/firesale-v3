@@ -68,6 +68,11 @@ ipcMain.on('export-html', (event, html: string) => {
     .then(() => sendFileSaved(browserWindow));
 });
 
-ipcMain.handle('has-changed', (_, content: string) => {
-  return hasChanged(content);
+ipcMain.handle('has-changed', (event, content: string) => {
+  const browserWindow = BrowserWindow.fromWebContents(event.sender);
+
+  const changed = hasChanged(content);
+  browserWindow?.setDocumentEdited(changed);
+
+  return changed;
 });
