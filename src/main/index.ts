@@ -18,28 +18,22 @@ app.on('window-all-closed', () => {
   }
 });
 
-ipcMain.on('show-open-dialog', async (event) => {
+ipcMain.on('show-open-dialog', event => {
   const browserWindow = BrowserWindow.fromWebContents(event.sender);
 
   if (!browserWindow) return;
 
-  const filePath = await showOpenDialog(browserWindow);
-
-  if (filePath) {
-    const content = await openFile(browserWindow, filePath);
-    content && sendFileOpened(browserWindow, content);
-  }
+  showOpenDialog(browserWindow)
+    .then(filePath => filePath && openFile(filePath))
+    .then(content => content && sendFileOpened(browserWindow, content));
 });
 
-ipcMain.on('show-save-dialog', async (event, content: string) => {
+ipcMain.on('show-save-dialog', (event, content: string) => {
   const browserWindow = BrowserWindow.fromWebContents(event.sender);
 
   if (!browserWindow) return;
 
-  const filePath = await showSaveDialog(browserWindow);
-
-  if (filePath) {
-    await saveFile(filePath, content);
-    sendFileSaved(browserWindow, filePath);
-  }
+  showSaveDialog(browserWindow)
+    .then(filePath => (filePath ? saveFile(filePath, content) : undefined))
+    .then(() => sendFileSaved(browserWindow));
 });

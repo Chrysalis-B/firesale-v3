@@ -7,9 +7,6 @@ export const sendFileOpened = (
   browserWindow.webContents.send('file-opened', content);
 };
 
-export const sendFileSaved = (
-  browserWindow: BrowserWindow,
-  filePath: string
-) => {
-  browserWindow.webContents.send('file-saved', filePath);
+export const sendFileSaved = (browserWindow: BrowserWindow) => {
+  browserWindow.webContents.send('file-saved');
 };
