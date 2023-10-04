@@ -19,7 +19,9 @@ export const showSaveDialog = async (browserWindow: BrowserWindow) => {
     filters: [{ name: 'HTML File', extensions: ['html'] }],
   });
 
-  if (result.canceled || !result.filePath) return;
+  const { canceled, filePath } = result;
 
-  return result.filePath;
+  if (canceled || !filePath) return;
+
+  return filePath;
 };
